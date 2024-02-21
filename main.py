@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+
 def getB0(x,y):
     Sx = sum(x)
     Sy = sum(y)
