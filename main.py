@@ -53,7 +53,7 @@ def inputData(): #permite entrada de valores por pares
     def insertData(x,y): #introduce los valores en las listas y vacia las variables auxiliares
         b=True
         global pruebax, pruebay
-        if x == None and y == None: #en caso de que ambos valores sean 0 se pide una confirmacion de inserte
+        if x == 0 and y == 0: #en caso de que ambos valores sean 0 se pide una confirmacion de inserte
             b=messagebox.askyesno("Error","Introduciendo datos vacios ¿Desea continuar?")
             print(b)
         if b: #si los valores no son 0 o son 0 pero se autoriza la entrada
@@ -97,7 +97,7 @@ def deleteData():#borra un par de elementos de tabla, grafica y listas
 
 ventana = Tk() #configuracion de ventana
 ventana.title("Regresion lineal simple")
-ventana.geometry("1000x600")
+ventana.geometry("900x550")
 ventana.configure(background='white')
 figura = Figure(figsize=(5,4), dpi=100)#configuracion de grafica
 subplot = figura.add_subplot(1,1,1)
@@ -108,25 +108,25 @@ canvas = FigureCanvasTkAgg(figura, master=grafica)
 canvas.draw()
 canvas.get_tk_widget().pack()
 tabla = ttk.Treeview(ventana, columns=("X", "Y"))#configuracion de tabla
-tabla.place(anchor = N, x=800, y=10, width=300, height=400)
+tabla.place(anchor = N, x=700, y=10, width=300, height=400)
 tabla.heading("X", text="X")
 tabla.heading("Y", text="Y")
-tabla.column("#0", width=0)
+tabla.column("#0", width=1)
 tabla.column("X", width=10)
 tabla.column("Y", width=10)
 for i in range(len(pruebax)):#insercion de los datos de las listas en la tabla
     tabla.insert("","end",values=(pruebax[i],pruebay[i]))
 btnVaciar = Button(ventana, text="Vaciar", command=nullDataset)#boton para vaciar las listas
-btnVaciar.place(anchor=N, x=700, y=450)
+btnVaciar.place(anchor=N, x=600, y=450)
 btnVaciar = Button(ventana, text="Agregar", command=inputData)#boton para agregar un par de elementos x y
-btnVaciar.place(anchor=N, x=800, y=450)
+btnVaciar.place(anchor=N, x=700, y=450)
 btnEliminar = Button(ventana, text="Eliminar", state=DISABLED,command=deleteData)#boton para eliminar un par de elementos x y
-btnEliminar.place(anchor=N, x=900, y=450)
+btnEliminar.place(anchor=N, x=800, y=450)
 B = getB0(pruebax, pruebay)#obtencion hardcodeada de valores en base al conjunto de prueba
 Be0 = Label(ventana, text="B0 = "+str(B[0]), font="Arial 20 bold", background='white', anchor=W, width=20)
 Be1 = Label(ventana, text="B1 = "+str(B[1]), font="Arial 20 bold", background='white', anchor=W, width=20)
-Be0.place(anchor=N, x=200, y=450)
-Be1.place(anchor=N, x=200, y=500)
+Be0.place(anchor=N, x=300, y=450)
+Be1.place(anchor=N, x=300, y=500)
 
 def filaSeleccionada(event):#configuracion de evento de seleccion para eliminacion de elementos
     global seleccion, indice
