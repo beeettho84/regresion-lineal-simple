@@ -81,6 +81,12 @@ def graficar():#funcion para dibujar la grafica de puntos en base a las listas
     Be1.place(anchor=N, x=200, y=500)
     print("Graficado")#impresion de control
 
+def predict(x)
+    B = getB0(pruebax, pruebay)
+    y = B[0]+(x*B[1])
+    print y
+    return y
+
 def deleteData():#borra un par de elementos de tabla, grafica y listas
     global seleccion,indice
     print(seleccion, indice)
@@ -127,6 +133,11 @@ Be0 = Label(ventana, text="B0 = "+str(B[0]), font="Arial 20 bold", background='w
 Be1 = Label(ventana, text="B1 = "+str(B[1]), font="Arial 20 bold", background='white', anchor=W, width=20)
 Be0.place(anchor=N, x=300, y=450)
 Be1.place(anchor=N, x=300, y=500)
+predict(24)
+predict(25)
+predict(27)
+predict(28)
+predict(29)
 
 def filaSeleccionada(event):#configuracion de evento de seleccion para eliminacion de elementos
     global seleccion, indice
