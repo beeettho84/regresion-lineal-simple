@@ -71,7 +71,6 @@ class pls:
         print("Dado X = "+str(ox)+", Y = "+str(self.B0)+" + ("+str(self.B1)+" * "+str(ox)+") = "+str(oy))
         return oy
 
-
     def getR2(self):
         return self.r2
 
