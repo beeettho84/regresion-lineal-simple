@@ -44,8 +44,6 @@ class pls:
         y_mean = Sy / self.n
         Sst = sum((yi - y_mean) ** 2 for yi in self.y)
         self.r = ((self.n*Sxy)-(Sx*Sy))/math.sqrt((self.n*Sx2-(Sx*Sx))*(self.n*Sy2-(Sy*Sy)))
-        print(Ssr)
-        print(Sst)
         self.r2 = 1 - (Ssr / Sst)
 
         print("B0 es igual a ", self.B0)  # imprimimos los valores en consola, para implementaciones sin interfaz grafica
