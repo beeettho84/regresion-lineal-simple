@@ -10,6 +10,37 @@ seleccion = None
 indice = None
 B = None
 
+class DiscreteMath:
+    def SumX(self, x):
+        return sum(x)
+
+    def SumY(self, y):
+        return sum(y)
+
+    def SumXY(self, x, y):
+        i=0
+        out = 0.0
+        if len(x) == len(y):
+            for i in range(len(x)):
+                out += x[i] * y[i]
+            return out
+        else:
+            print("error, X y Y deben tener la misma longitud")
+
+    def SumX2(self, x):
+        i = 0
+        out = 0.0
+        for i in range(len(x)):
+            out += x[i] * x[i]
+        return out
+
+    def SumY2(self, y):
+        i = 0
+        out = 0.0
+        for i in range(len(y)):
+            out += y[i] * y[i]
+        return out
+
 class pls:
     x = list()
     y = list()
@@ -27,17 +58,16 @@ class pls:
             self.calculaBs()
 
     def calculaBs(self):
-        Sx = sum(self.x)  # obtenemos los valores parciales de las ecuaciones para facilitar el calculo
-        Sy = sum(self.y)
-        Sxy = 0
-        Sx2 = 0
-        Sy2 = 0
-
-        i = 0
+        Sx = DiscreteMath.SumX(self.x, self.x)  # obtenemos los valores parciales de las ecuaciones para facilitar el calculo
+        Sy = DiscreteMath.SumY(self.y, self.y)
+        Sxy = DiscreteMath.SumXY(self.x, self.x, self.y)
+        Sx2 = DiscreteMath.SumX2(self.x, self.x)
+        Sy2 = DiscreteMath.SumY2(self.y, self.y)
+        """i = 0
         for i in range(self.n):  # realizamos las sumatorias de los campos complejos
             Sxy = Sxy + (self.x[i] * self.y[i])
             Sx2 = Sx2 + (self.x[i] * self.x[i])
-            Sy2 = Sy2 + (self.y[i] * self.y[i])
+            Sy2 = Sy2 + (self.y[i] * self.y[i])"""
         self.B1 = (self.n * Sxy - (Sx * Sy)) / (self.n * Sx2 - (Sx * Sx))  # calculamos el valor de B1, necesario para obtener B0
         self.B0 = (Sy - (self.B1 * Sx)) / self.n  # calculamos B0
         Ssr = sum((yi - (self.B0 + self.B1 * xi)) ** 2 for xi, yi in zip(self.x, self.y))
@@ -93,7 +123,7 @@ def nullDataset(obj): #vacia la tabla y los conjuntos
     tabla.delete(*tabla.get_children())
     obj.null()
     nullScatter()
-    print("Hecho")
+    #print("Hecho")
 
 def nullScatter(): #vacia el scatter plot
     subplot.clear()
@@ -131,23 +161,27 @@ def inputData(obj): #permite entrada de valores por pares
             graficar(obj)#y dibujamos uno nuevo
 
 def graficar(obj):#funcion para dibujar la grafica de puntos en base a las listas
-    global pruebax, pruebay, Be0, Be1
-    Be0.destroy()
-    Be1.destroy()
+    global pruebax, pruebay, lblB0, lblB1
+    lblB0.destroy()
+    lblB1.destroy()
     subplot.scatter(pruebax,pruebay)
     canvas.draw()
-    Be0 = Label(ventana, text="B0 = " + str(obj.getB0()), font="Arial 20 bold", background='white', anchor=W, width=20)
-    Be1 = Label(ventana, text="B1 = " + str(obj.getB1()), font="Arial 20 bold", background='white', anchor=W, width=20)
-    Be0.place(anchor=N, x=200, y=450)
-    Be1.place(anchor=N, x=200, y=500)
-    print("Graficado")#impresion de control
+    lblB0 = Label(ventana, text="B0 = " + str(obj.getB0()), font="Arial 20 bold", background='white', anchor=W, width=20)
+    lblB1 = Label(ventana, text="B1 = " + str(obj.getB1()), font="Arial 20 bold", background='white', anchor=W, width=20)
+    lblB0.place(anchor=N, x=200, y=400)
+    lblB1.place(anchor=N, x=200, y=450)
+    lblR = Label(ventana, text="R = " + str(exam.getR()), font="Arial 20 bold", background='white', anchor=W, width=20)
+    lblR2 = Label(ventana, text="R2 = " + str(exam.getR2()), font="Arial 20 bold", background='white', anchor=W, width=20)
+    lblR.place(anchor=N, x=200, y=500)
+    lblR2.place(anchor=N, x=200, y=550)
+    #print("Graficado")#impresion de control
 
 def grafPredict(obj,x):
     lblY.configure(text="Y = "+str(obj.predict(x)))
 
 def deleteData(obj):#borra un par de elementos de tabla, grafica y listas
     global seleccion,indice
-    print(seleccion, indice)
+    #print(seleccion, indice)
     tabla.delete(seleccion)
     btnEliminar.configure(state=DISABLED)
     obj.pop(indice)
@@ -158,7 +192,7 @@ def deleteData(obj):#borra un par de elementos de tabla, grafica y listas
 
 ventana = Tk() #configuracion de ventana
 ventana.title("Regresion lineal simple")
-ventana.geometry("900x550")
+ventana.geometry("900x600")
 ventana.configure(background='white')
 exam = pls(pruebax,pruebay)
 figura = Figure(figsize=(5,4), dpi=100)#configuracion de grafica
@@ -184,10 +218,14 @@ btnAgregar = Button(ventana, text="Agregar", command=lambda: inputData(exam))#bo
 btnAgregar.place(anchor=N, x=700, y=400)
 btnEliminar = Button(ventana, text="Eliminar", state=DISABLED, command=lambda: deleteData(exam))#boton para eliminar un par de elementos x y
 btnEliminar.place(anchor=N, x=800, y=400)
-Be0 = Label(ventana, text="B0 = "+str(exam.getB0()), font="Arial 20 bold", background='white', anchor=W, width=20)
-Be1 = Label(ventana, text="B1 = "+str(exam.getB1()), font="Arial 20 bold", background='white', anchor=W, width=20)
-Be0.place(anchor=N, x=300, y=450)
-Be1.place(anchor=N, x=300, y=500)
+lblB0 = Label(ventana, text="B0 = "+str(exam.getB0()), font="Arial 20 bold", background='white', anchor=W, width=20)
+lblB1 = Label(ventana, text="B1 = "+str(exam.getB1()), font="Arial 20 bold", background='white', anchor=W, width=20)
+lblB0.place(anchor=N, x=200, y=400)
+lblB1.place(anchor=N, x=200, y=450)
+lblR = Label(ventana, text="R = "+str(exam.getR()), font="Arial 20 bold", background='white', anchor=W, width=20)
+lblR2 = Label(ventana, text="R2 = "+str(exam.getR2()), font="Arial 20 bold", background='white', anchor=W, width=20)
+lblR.place(anchor=N, x=200, y=500)
+lblR2.place(anchor=N, x=200, y=550)
 exam.predict(24)
 exam.predict(25)
 exam.predict(27)
@@ -212,9 +250,8 @@ def filaSeleccionada(event):#configuracion de evento de seleccion para eliminaci
     seleccion = tabla.selection()
     if seleccion:
         indice = tabla.index(seleccion[0])
-    print("capturado", seleccion)
-    print(indice)
+    #print("capturado", seleccion)
+    #print(indice)
 
 tabla.bind_all('<<TreeviewSelect>>', filaSeleccionada)#captura de evento
-
 ventana.mainloop()# Ejecutar el bucle principal de Tkinter
