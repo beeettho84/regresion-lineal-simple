@@ -10,6 +10,24 @@ seleccion = None
 indice = None
 B = None
 
+class Dataset:
+    x = list()
+    y = list()
+    def __init__(self, inx, iny):
+        self.x = inx
+        self.y = iny
+
+    def getX(self):
+        return self.x
+
+    def getY(self):
+        return self.y
+
+    def null(self):
+        self.x = list()
+        self.y = list()
+
+
 class DiscreteMath:
     def SumX(x):
         return sum(x)
@@ -49,8 +67,9 @@ class DiscreteMath:
 
 
 class pls:
-    x = list()
-    y = list()
+    #x = list()
+    #y = list()
+    data = None
     B0 = float()
     B1 = float()
     n = 0
@@ -60,22 +79,23 @@ class pls:
     def __init__(self, inx, iny):
         if(len(inx) == len(iny)):
             self.n = len(inx)
-            self.x = inx
-            self.y = iny
+            #self.x = inx
+            #self.y = iny
+            self.data = Dataset(inx, iny)
             self.calculaBs()
 
     def calculaBs(self):
-        Sx = DiscreteMath.SumX(self.x)  # obtenemos los valores parciales de las ecuaciones para facilitar el calculo
-        Sy = DiscreteMath.SumY(self.y)
-        Sxy = DiscreteMath.SumXY(self.x, self.y)
-        Sx2 = DiscreteMath.SumX2(self.x)
-        Sy2 = DiscreteMath.SumY2(self.y)
-        self.B1 = (self.n * Sxy - (DiscreteMath.SumXSumY(self.x, self.y))) / (self.n * Sx2 - (DiscreteMath.SumXSumX(self.x)))  # calculamos el valor de B1, necesario para obtener B0
+        Sx = DiscreteMath.SumX(self.data.getX())  # obtenemos los valores parciales de las ecuaciones para facilitar el calculo
+        Sy = DiscreteMath.SumY(self.data.getY())
+        Sxy = DiscreteMath.SumXY(self.data.getX(), self.data.getY())
+        Sx2 = DiscreteMath.SumX2(self.data.getX())
+        Sy2 = DiscreteMath.SumY2(self.data.getY())
+        self.B1 = (self.n * Sxy - (DiscreteMath.SumXSumY(self.data.getX(), self.data.getY()))) / (self.n * Sx2 - (DiscreteMath.SumXSumX(self.data.getX())))  # calculamos el valor de B1, necesario para obtener B0
         self.B0 = (Sy - (self.B1 * Sx)) / self.n  # calculamos B0
-        Ssr = sum((yi - (self.B0 + self.B1 * xi)) ** 2 for xi, yi in zip(self.x, self.y))
+        Ssr = sum((yi - (self.B0 + self.B1 * xi)) ** 2 for xi, yi in zip(self.data.getX(), self.data.getY()))
         y_mean = Sy / self.n
-        Sst = sum((yi - y_mean) ** 2 for yi in self.y)
-        self.r = ((self.n*Sxy)-(DiscreteMath.SumXSumY(self.x, self.y)))/math.sqrt((self.n*Sx2-(DiscreteMath.SumXSumX(self.x)))*(self.n*Sy2-(DiscreteMath.SumXSumX(self.y))))
+        Sst = sum((yi - y_mean) ** 2 for yi in self.data.getY())
+        self.r = ((self.n*Sxy)-(DiscreteMath.SumXSumY(self.data.getX(), self.data.getY())))/math.sqrt((self.n*Sx2-(DiscreteMath.SumXSumX(self.data.getX())))*(self.n*Sy2-(DiscreteMath.SumXSumX(self.data.getY()))))
         self.r2 = 1 - (Ssr / Sst)
 
         print("B0 es igual a ", self.B0)  # imprimimos los valores en consola, para implementaciones sin interfaz grafica
@@ -89,22 +109,21 @@ class pls:
 
     def null(self):
         self.n = 0
-        self.x = list()
-        self.y = list()
+        self.data.null()
         self.B0 = 0.0
         self.B1 = 0.0
 
     def pop(self, pos):
         if pos <= self.n:
-            self.x.pop(pos)
-            self.y.pop(pos)
-            self.n = len(self.x)
+            self.data.getX().pop(pos)
+            self.data.getY().pop(pos)
+            self.n = len(self.data.getX())
             self.calculaBs()
 
     def input(self, inx, iny):
-        self.x.append(inx)
-        self.y.append(iny)
-        self.n = len(self.x)
+        self.data.getX().append(inx)
+        self.data.getY().append(iny)
+        self.n = len(self.data.getX())
         self.calculaBs()
 
     def predict(self, ox):
@@ -199,7 +218,7 @@ ventana.configure(background='white')
 exam = pls(pruebax,pruebay)
 figura = Figure(figsize=(5,4), dpi=100)#configuracion de grafica
 subplot = figura.add_subplot(1,1,1)
-subplot.scatter(exam.x,exam.y)
+subplot.scatter(exam.data.getX(),exam.data.getY())
 grafica = Frame(ventana, width=600, height=600)
 grafica.place(anchor=N, x=250, y=0)
 canvas = FigureCanvasTkAgg(figura, master=grafica)
