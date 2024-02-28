@@ -41,6 +41,13 @@ class DiscreteMath:
             out += y[i] * y[i]
         return out
 
+    def SumXSumX(x):
+        return sum(x)*sum(x)
+
+    def SumXSumY(x,y):
+        return sum(x)*sum(y)
+
+
 class pls:
     x = list()
     y = list()
@@ -63,12 +70,12 @@ class pls:
         Sxy = DiscreteMath.SumXY(self.x, self.y)
         Sx2 = DiscreteMath.SumX2(self.x)
         Sy2 = DiscreteMath.SumY2(self.y)
-        self.B1 = (self.n * Sxy - (Sx * Sy)) / (self.n * Sx2 - (Sx * Sx))  # calculamos el valor de B1, necesario para obtener B0
+        self.B1 = (self.n * Sxy - (DiscreteMath.SumXSumY(self.x, self.y))) / (self.n * Sx2 - (DiscreteMath.SumXSumX(self.x)))  # calculamos el valor de B1, necesario para obtener B0
         self.B0 = (Sy - (self.B1 * Sx)) / self.n  # calculamos B0
         Ssr = sum((yi - (self.B0 + self.B1 * xi)) ** 2 for xi, yi in zip(self.x, self.y))
         y_mean = Sy / self.n
         Sst = sum((yi - y_mean) ** 2 for yi in self.y)
-        self.r = ((self.n*Sxy)-(Sx*Sy))/math.sqrt((self.n*Sx2-(Sx*Sx))*(self.n*Sy2-(Sy*Sy)))
+        self.r = ((self.n*Sxy)-(DiscreteMath.SumXSumY(self.x, self.y)))/math.sqrt((self.n*Sx2-(DiscreteMath.SumXSumX(self.x)))*(self.n*Sy2-(DiscreteMath.SumXSumX(self.y))))
         self.r2 = 1 - (Ssr / Sst)
 
         print("B0 es igual a ", self.B0)  # imprimimos los valores en consola, para implementaciones sin interfaz grafica
@@ -245,8 +252,6 @@ def filaSeleccionada(event):#configuracion de evento de seleccion para eliminaci
     seleccion = tabla.selection()
     if seleccion:
         indice = tabla.index(seleccion[0])
-    #print("capturado", seleccion)
-    #print(indice)
 
 tabla.bind_all('<<TreeviewSelect>>', filaSeleccionada)#captura de evento
 ventana.mainloop()# Ejecutar el bucle principal de Tkinter
