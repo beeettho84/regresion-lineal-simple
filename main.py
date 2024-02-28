@@ -11,13 +11,13 @@ indice = None
 B = None
 
 class DiscreteMath:
-    def SumX(self, x):
+    def SumX(x):
         return sum(x)
 
-    def SumY(self, y):
+    def SumY(y):
         return sum(y)
 
-    def SumXY(self, x, y):
+    def SumXY(x, y):
         i=0
         out = 0.0
         if len(x) == len(y):
@@ -27,14 +27,14 @@ class DiscreteMath:
         else:
             print("error, X y Y deben tener la misma longitud")
 
-    def SumX2(self, x):
+    def SumX2(x):
         i = 0
         out = 0.0
         for i in range(len(x)):
             out += x[i] * x[i]
         return out
 
-    def SumY2(self, y):
+    def SumY2(y):
         i = 0
         out = 0.0
         for i in range(len(y)):
@@ -58,16 +58,11 @@ class pls:
             self.calculaBs()
 
     def calculaBs(self):
-        Sx = DiscreteMath.SumX(self.x, self.x)  # obtenemos los valores parciales de las ecuaciones para facilitar el calculo
-        Sy = DiscreteMath.SumY(self.y, self.y)
-        Sxy = DiscreteMath.SumXY(self.x, self.x, self.y)
-        Sx2 = DiscreteMath.SumX2(self.x, self.x)
-        Sy2 = DiscreteMath.SumY2(self.y, self.y)
-        """i = 0
-        for i in range(self.n):  # realizamos las sumatorias de los campos complejos
-            Sxy = Sxy + (self.x[i] * self.y[i])
-            Sx2 = Sx2 + (self.x[i] * self.x[i])
-            Sy2 = Sy2 + (self.y[i] * self.y[i])"""
+        Sx = DiscreteMath.SumX(self.x)  # obtenemos los valores parciales de las ecuaciones para facilitar el calculo
+        Sy = DiscreteMath.SumY(self.y)
+        Sxy = DiscreteMath.SumXY(self.x, self.y)
+        Sx2 = DiscreteMath.SumX2(self.x)
+        Sy2 = DiscreteMath.SumY2(self.y)
         self.B1 = (self.n * Sxy - (Sx * Sy)) / (self.n * Sx2 - (Sx * Sx))  # calculamos el valor de B1, necesario para obtener B0
         self.B0 = (Sy - (self.B1 * Sx)) / self.n  # calculamos B0
         Ssr = sum((yi - (self.B0 + self.B1 * xi)) ** 2 for xi, yi in zip(self.x, self.y))
