@@ -10,9 +10,66 @@ seleccion = None
 indice = None
 B = None
 
-class pls:
+class Dataset:
     x = list()
     y = list()
+    def __init__(self, inx, iny):
+        self.x = inx
+        self.y = iny
+
+    def getX(self):
+        return self.x
+
+    def getY(self):
+        return self.y
+
+    def null(self):
+        self.x = list()
+        self.y = list()
+
+
+class DiscreteMath:
+    def SumX(x):
+        return sum(x)
+
+    def SumY(y):
+        return sum(y)
+
+    def SumXY(x, y):
+        i=0
+        out = 0.0
+        if len(x) == len(y):
+            for i in range(len(x)):
+                out += x[i] * y[i]
+            return out
+        else:
+            print("error, X y Y deben tener la misma longitud")
+
+    def SumX2(x):
+        i = 0
+        out = 0.0
+        for i in range(len(x)):
+            out += x[i] * x[i]
+        return out
+
+    def SumY2(y):
+        i = 0
+        out = 0.0
+        for i in range(len(y)):
+            out += y[i] * y[i]
+        return out
+
+    def SumXSumX(x):
+        return sum(x)*sum(x)
+
+    def SumXSumY(x,y):
+        return sum(x)*sum(y)
+
+
+class pls:
+    #x = list()
+    #y = list()
+    data = None
     B0 = float()
     B1 = float()
     n = 0
@@ -22,28 +79,23 @@ class pls:
     def __init__(self, inx, iny):
         if(len(inx) == len(iny)):
             self.n = len(inx)
-            self.x = inx
-            self.y = iny
+            #self.x = inx
+            #self.y = iny
+            self.data = Dataset(inx, iny)
             self.calculaBs()
 
     def calculaBs(self):
-        Sx = sum(self.x)  # obtenemos los valores parciales de las ecuaciones para facilitar el calculo
-        Sy = sum(self.y)
-        Sxy = 0
-        Sx2 = 0
-        Sy2 = 0
-
-        i = 0
-        for i in range(self.n):  # realizamos las sumatorias de los campos complejos
-            Sxy = Sxy + (self.x[i] * self.y[i])
-            Sx2 = Sx2 + (self.x[i] * self.x[i])
-            Sy2 = Sy2 + (self.y[i] * self.y[i])
-        self.B1 = (self.n * Sxy - (Sx * Sy)) / (self.n * Sx2 - (Sx * Sx))  # calculamos el valor de B1, necesario para obtener B0
+        Sx = DiscreteMath.SumX(self.data.getX())  # obtenemos los valores parciales de las ecuaciones para facilitar el calculo
+        Sy = DiscreteMath.SumY(self.data.getY())
+        Sxy = DiscreteMath.SumXY(self.data.getX(), self.data.getY())
+        Sx2 = DiscreteMath.SumX2(self.data.getX())
+        Sy2 = DiscreteMath.SumY2(self.data.getY())
+        self.B1 = (self.n * Sxy - (DiscreteMath.SumXSumY(self.data.getX(), self.data.getY()))) / (self.n * Sx2 - (DiscreteMath.SumXSumX(self.data.getX())))  # calculamos el valor de B1, necesario para obtener B0
         self.B0 = (Sy - (self.B1 * Sx)) / self.n  # calculamos B0
-        Ssr = sum((yi - (self.B0 + self.B1 * xi)) ** 2 for xi, yi in zip(self.x, self.y))
+        Ssr = sum((yi - (self.B0 + self.B1 * xi)) ** 2 for xi, yi in zip(self.data.getX(), self.data.getY()))
         y_mean = Sy / self.n
-        Sst = sum((yi - y_mean) ** 2 for yi in self.y)
-        self.r = ((self.n*Sxy)-(Sx*Sy))/math.sqrt((self.n*Sx2-(Sx*Sx))*(self.n*Sy2-(Sy*Sy)))
+        Sst = sum((yi - y_mean) ** 2 for yi in self.data.getY())
+        self.r = ((self.n*Sxy)-(DiscreteMath.SumXSumY(self.data.getX(), self.data.getY())))/math.sqrt((self.n*Sx2-(DiscreteMath.SumXSumX(self.data.getX())))*(self.n*Sy2-(DiscreteMath.SumXSumX(self.data.getY()))))
         self.r2 = 1 - (Ssr / Sst)
 
         print("B0 es igual a ", self.B0)  # imprimimos los valores en consola, para implementaciones sin interfaz grafica
@@ -57,22 +109,21 @@ class pls:
 
     def null(self):
         self.n = 0
-        self.x = list()
-        self.y = list()
+        self.data.null()
         self.B0 = 0.0
         self.B1 = 0.0
 
     def pop(self, pos):
         if pos <= self.n:
-            self.x.pop(pos)
-            self.y.pop(pos)
-            self.n = len(self.x)
+            self.data.getX().pop(pos)
+            self.data.getY().pop(pos)
+            self.n = len(self.data.getX())
             self.calculaBs()
 
     def input(self, inx, iny):
-        self.x.append(inx)
-        self.y.append(iny)
-        self.n = len(self.x)
+        self.data.getX().append(inx)
+        self.data.getY().append(iny)
+        self.n = len(self.data.getX())
         self.calculaBs()
 
     def predict(self, ox):
@@ -93,7 +144,7 @@ def nullDataset(obj): #vacia la tabla y los conjuntos
     tabla.delete(*tabla.get_children())
     obj.null()
     nullScatter()
-    print("Hecho")
+    #print("Hecho")
 
 def nullScatter(): #vacia el scatter plot
     subplot.clear()
@@ -131,23 +182,27 @@ def inputData(obj): #permite entrada de valores por pares
             graficar(obj)#y dibujamos uno nuevo
 
 def graficar(obj):#funcion para dibujar la grafica de puntos en base a las listas
-    global pruebax, pruebay, Be0, Be1
-    Be0.destroy()
-    Be1.destroy()
+    global pruebax, pruebay, lblB0, lblB1
+    lblB0.destroy()
+    lblB1.destroy()
     subplot.scatter(pruebax,pruebay)
     canvas.draw()
-    Be0 = Label(ventana, text="B0 = " + str(obj.getB0()), font="Arial 20 bold", background='white', anchor=W, width=20)
-    Be1 = Label(ventana, text="B1 = " + str(obj.getB1()), font="Arial 20 bold", background='white', anchor=W, width=20)
-    Be0.place(anchor=N, x=200, y=450)
-    Be1.place(anchor=N, x=200, y=500)
-    print("Graficado")#impresion de control
+    lblB0 = Label(ventana, text="B0 = " + str(obj.getB0()), font="Arial 20 bold", background='white', anchor=W, width=20)
+    lblB1 = Label(ventana, text="B1 = " + str(obj.getB1()), font="Arial 20 bold", background='white', anchor=W, width=20)
+    lblB0.place(anchor=N, x=200, y=400)
+    lblB1.place(anchor=N, x=200, y=450)
+    lblR = Label(ventana, text="R = " + str(exam.getR()), font="Arial 20 bold", background='white', anchor=W, width=20)
+    lblR2 = Label(ventana, text="R2 = " + str(exam.getR2()), font="Arial 20 bold", background='white', anchor=W, width=20)
+    lblR.place(anchor=N, x=200, y=500)
+    lblR2.place(anchor=N, x=200, y=550)
+    #print("Graficado")#impresion de control
 
 def grafPredict(obj,x):
     lblY.configure(text="Y = "+str(obj.predict(x)))
 
 def deleteData(obj):#borra un par de elementos de tabla, grafica y listas
     global seleccion,indice
-    print(seleccion, indice)
+    #print(seleccion, indice)
     tabla.delete(seleccion)
     btnEliminar.configure(state=DISABLED)
     obj.pop(indice)
@@ -158,12 +213,12 @@ def deleteData(obj):#borra un par de elementos de tabla, grafica y listas
 
 ventana = Tk() #configuracion de ventana
 ventana.title("Regresion lineal simple")
-ventana.geometry("900x550")
+ventana.geometry("900x600")
 ventana.configure(background='white')
 exam = pls(pruebax,pruebay)
 figura = Figure(figsize=(5,4), dpi=100)#configuracion de grafica
 subplot = figura.add_subplot(1,1,1)
-subplot.scatter(exam.x,exam.y)
+subplot.scatter(exam.data.getX(),exam.data.getY())
 grafica = Frame(ventana, width=600, height=600)
 grafica.place(anchor=N, x=250, y=0)
 canvas = FigureCanvasTkAgg(figura, master=grafica)
@@ -184,10 +239,14 @@ btnAgregar = Button(ventana, text="Agregar", command=lambda: inputData(exam))#bo
 btnAgregar.place(anchor=N, x=700, y=400)
 btnEliminar = Button(ventana, text="Eliminar", state=DISABLED, command=lambda: deleteData(exam))#boton para eliminar un par de elementos x y
 btnEliminar.place(anchor=N, x=800, y=400)
-Be0 = Label(ventana, text="B0 = "+str(exam.getB0()), font="Arial 20 bold", background='white', anchor=W, width=20)
-Be1 = Label(ventana, text="B1 = "+str(exam.getB1()), font="Arial 20 bold", background='white', anchor=W, width=20)
-Be0.place(anchor=N, x=300, y=450)
-Be1.place(anchor=N, x=300, y=500)
+lblB0 = Label(ventana, text="B0 = "+str(exam.getB0()), font="Arial 20 bold", background='white', anchor=W, width=20)
+lblB1 = Label(ventana, text="B1 = "+str(exam.getB1()), font="Arial 20 bold", background='white', anchor=W, width=20)
+lblB0.place(anchor=N, x=200, y=400)
+lblB1.place(anchor=N, x=200, y=450)
+lblR = Label(ventana, text="R = "+str(exam.getR()), font="Arial 20 bold", background='white', anchor=W, width=20)
+lblR2 = Label(ventana, text="R2 = "+str(exam.getR2()), font="Arial 20 bold", background='white', anchor=W, width=20)
+lblR.place(anchor=N, x=200, y=500)
+lblR2.place(anchor=N, x=200, y=550)
 exam.predict(24)
 exam.predict(25)
 exam.predict(27)
@@ -212,35 +271,6 @@ def filaSeleccionada(event):#configuracion de evento de seleccion para eliminaci
     seleccion = tabla.selection()
     if seleccion:
         indice = tabla.index(seleccion[0])
-    print("capturado", seleccion)
-    print(indice)
 
 tabla.bind_all('<<TreeviewSelect>>', filaSeleccionada)#captura de evento
-
 ventana.mainloop()# Ejecutar el bucle principal de Tkinter
-ventana.configure(background='white')
-figura = Figure(figsize=(5,4), dpi=100)
-subplot = figura.add_subplot(1,1,1)
-pruebax = [23, 26, 30, 34, 43, 48, 52, 57, 58]
-pruebay = [651, 762, 856, 1063, 1190, 1298, 1421, 1440, 1518]
-subplot.scatter(pruebax,pruebay)
-grafica = Frame(ventana, width=600, height=600)
-grafica.place(anchor = N, x=300, y=10)
-canvas = FigureCanvasTkAgg(figura, master=grafica)
-canvas.draw()
-canvas.get_tk_widget().pack()
-tabla = ttk.Treeview(ventana, columns=("X", "Y"))
-tabla.place(anchor = N, x=800, y=10, width=300, height=400)
-tabla.heading("X", text="X")
-tabla.heading("Y", text="Y")
-tabla.column("#0", width=0)
-tabla.column("X", width=10)
-tabla.column("Y", width=10)
-for i in range(len(pruebax)):
-    tabla.insert("","end",values=(pruebax[i],pruebay[i]))
-B = getB0(pruebax, pruebay)
-Be0 = Label(ventana, text="B0 = "+str(B[0]), font="Arial 20 bold", background='white', anchor=W, width=20).place(anchor=N, x=200, y=450)
-Be1 = Label(ventana, text="B1 = "+str(B[1]), font="Arial 20 bold", background='white', anchor=W, width=20).place(anchor=N, x=200, y=500)
-
-# Ejecutar el bucle principal de Tkinter
-ventana.mainloop()
